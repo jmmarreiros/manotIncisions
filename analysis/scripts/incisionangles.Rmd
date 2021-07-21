@@ -1,0 +1,146 @@
+---
+title: "incisionangles"
+author: "Joao Marreiros"
+date: "7/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(comment = NA, message = FALSE, indent = "", error = TRUE)
+
+```
+
+__Brief description of the script__
+
+This R markdown document reads, summarizes and plots data concerning the analysis of the Manot core engraved incisions, included in the manuscript XXX.
+
+The document contains:
+
+1. Tables
+2. Figures (data analysis)
+
+This R project and respective scripts follow the procedures described by Marwick et al. 2017. 
+
+To compile this markdown document do not delete or move files from their original folders.
+Please note that most of the tables and figures in this file do not match the numbering in the original manuscript.
+
+For any questions, comments and inputs, please contact:
+
+João Marreiros, marreiros@rgzm.de
+
+
+# Load data into R project
+
+*Imported files are in: '`r paste0("../analysis/raw_data")`'*
+
+*Figures are saved in: '`r paste0("../analysis/plots")`'*
+
+*Tables are saved in: '`r paste0("../analysis/derived_data")`'*
+
+# Load libraries
+
+```{r}
+
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(GGally)
+library(doBy)
+library(ggfortify)
+library(tools)
+
+```
+
+
+# Import dataset
+
+```{r}
+
+db <- read_csv("../raw_data/incisionsangle.csv", na = c("", "NA"), quoted_na = TRUE)
+data_file <- list.files("../raw_data/", pattern = "\\.csv$", full.names = TRUE)
+
+```
+
+Show dataset:
+
+```{r}
+
+str(db)
+
+```
+
+# Import and summarize data
+
+```{r fig.height = 6.5, fig.width = 8.5, res = 300}
+
+# compute descriptive statistics
+
+nminmaxmeanmedsd <- function(x){
+	y <- x[!is.na(x)]
+	n_test <- length(y)
+	min_test <- min(y)
+	max_test <- max(y)
+	mean_test <- mean(y)
+ 	med_test <- median(y)
+ 	sd_test <- sd(y)
+ 	out <- c(n_test, min_test, max_test, mean_test, med_test, sd_test)
+ 	names(out) <- c("n", "min", "max", "mean", "median", "sd")
+ 	return(out)
+}
+
+num.var <- 5:length(db)
+
+anglestats <- summaryBy(.~aoi + site + incision, data=db[c("site", "incision", names(db)[num.var])], FUN=nminmaxmeanmedsd)
+
+anglestats
+
+write_csv(db, "../derived_data/anglestats.csv")
+
+```
+
+# Plot data
+
+```{r fig.height = 6.5, fig.width = 8.5, res = 300}
+
+# converting to categorical
+db$aoi = as.factor(db$aoi) 
+db$incision = as.factor(db$incision)
+
+sitesangle <- ggplot(data = db, aes(x = aoi, y = angle, colour = site)) +  
+           geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(colour = "site", x = "Areas of interest", y = "Angle in º") +
+           facet_wrap(~ site) +
+           geom_jitter(aes(colour = site), alpha=0.9, position=position_jitter(w=0.1,h=0.1))
+
+print(sitesangle)
+
+ggsave("../plots/sitesangle.png")
+
+
+```
+
+# Run ANOVA for comparison
+
+```{r}
+
+angle_aov <- aov(angle ~ site,
+  data = db)
+
+summary(angle_aov)
+
+```
+
+---
+
+End of Script
+
+
+
+
+
+
+
+
+
+
