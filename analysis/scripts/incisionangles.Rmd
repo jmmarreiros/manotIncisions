@@ -94,7 +94,7 @@ anglestats <- summaryBy(.~aoi + site + incision, data=db[c("site", "incision", n
 
 anglestats
 
-write_csv(db, "../derived_data/anglestats.csv")
+write_csv(anglestats, "../summary_stats/anglestats.csv")
 
 ```
 
