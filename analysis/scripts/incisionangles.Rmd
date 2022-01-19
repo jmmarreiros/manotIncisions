@@ -2,7 +2,9 @@
 title: "incisionangles"
 author: "Joao Marreiros"
 date: "7/21/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -48,6 +50,8 @@ library(GGally)
 library(doBy)
 library(ggfortify)
 library(tools)
+library(rstatix)
+library(ggpubr)
 
 ```
 
@@ -104,13 +108,12 @@ write_csv(anglestats, "../summary_stats/anglestats.csv")
 
 # converting to categorical
 db$aoi = as.factor(db$aoi) 
-db$incision = as.factor(db$incision)
+# db$incision = as.factor(db$incision)
 
-sitesangle <- ggplot(data = db, aes(x = aoi, y = angle, colour = site)) +  
+sitesangle <- ggplot(data = db, aes(x = site, y = angle)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
-           labs(colour = "site", x = "Areas of interest", y = "Angle in º") +
-           facet_wrap(~ site) +
+           labs( x = "", y = "Angle in º") +
            geom_jitter(aes(colour = site), alpha=0.9, position=position_jitter(w=0.1,h=0.1))
 
 print(sitesangle)
@@ -124,12 +127,85 @@ ggsave("../plots/sitesangle.png")
 
 ```{r}
 
-angle_aov <- aov(angle ~ site,
-  data = db)
 
-summary(angle_aov)
+
+# brief visualization of the data from the 3 artifacts
+
+ggplot(data = db, aes(x= site, y= angle)) +
+  geom_boxplot()
+
+# check for outliers
+
+db %>%
+  group_by(site) %>%
+  identify_outliers(angle)
+
+# there are no extreme outliers
+
+# check normality
+
+model <- lm(angle ~ site, data = db)
+
+# QQ plot of residuals
+
+ggqqplot(residuals(model))
+shapiro_test(residuals(model))
+
+db %>%
+  group_by(site) %>%
+  shapiro_test(angle)
+
+ggqqplot(db, "angle", facet.by = "site")
+
+ang.aov <- db %>% anova_test(angle ~ site)
+ang.aov
+
+# post-hoc test
+
+ang.pwc <- db %>% tukey_hsd(angle ~ site)
+ang.pwc
+
+# plot the results
+
+ang.pwc.plot <- ang.pwc %>% add_xy_position(x = "site")
+
+
+ggboxplot(db, x = "site", y = "angle") +
+  stat_pvalue_manual(ang.pwc.plot, hide.ns = TRUE) +
+  labs(
+    subtitle = get_test_label(ang.aov, detailed = TRUE),
+    caption = get_pwc_label(ang.pwc.plot)
+    )
 
 ```
+
+# Kruskal-Wallis test
+```{r}
+
+ang.kruskal <- db %>% kruskal_test(angle ~ site)
+ang.kruskal
+
+db %>% kruskal_effsize(angle ~ site)
+
+# comparison between pairs
+
+ang.will <- db %>% 
+  wilcox_test(angle ~ site, p.adjust.method = "bonferroni")
+ang.will
+
+ang.will <- ang.will %>% add_xy_position(x = "site")
+
+ggboxplot(db, x = "site", y = "angle") +
+  stat_pvalue_manual(ang.will, hide.ns = TRUE) +
+  labs(
+    subtitle = get_test_label(ang.kruskal, detailed = TRUE),
+    caption = get_pwc_label(ang.will)
+    )
+
+ggsave("../plots/anova.png")
+
+```
+
 
 ---
 
