@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 # Please put your title here to include it in the file below.
-Title <- "Title of your paper goes here"
+Title <- "An intentionally engraved Levallois core from Manot Cave, Israel, and its contribution to understanding human behavioural complexity"
 ```
 
 # manotIncisions
@@ -20,7 +20,7 @@ Title <- "Title of your paper goes here"
 
 This repository contains the data and code for our paper:
 
-> Authors, (YYYY). _`r Title`_. Name of journal/book <https://doi.org/xxx/xxx>
+> Marreiros, J., Goder-Goldberger, M., Paixao, E., (2022). _`r Title`_. Name of journal/book <https://doi.org/xxx/xxx>
 
 Our pre-print is online here:
 
@@ -31,7 +31,7 @@ Our pre-print is online here:
 
 Please cite this compendium as:
 
-> Authors, (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `r Title`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx>
+> Marreiros, J., Goder-Goldberger, M., Paixao, E., (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `r Title`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx>
 
 ## Contents
 

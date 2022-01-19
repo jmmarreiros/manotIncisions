@@ -1,10 +1,10 @@
 ---
-title: "incisionangles"
-author: "Joao Marreiros"
+title: "SOM 3 - Read and data plotting from the Manuscript Marreiros et al. 2022"
+author: "Joao Marreiros, Mae Goder-Goldberger, Eduardo Paixao"
 date: "7/21/2021"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +14,7 @@ knitr::opts_knit$set(comment = NA, message = FALSE, indent = "", error = TRUE)
 
 __Brief description of the script__
 
-This R markdown document reads, summarizes and plots data concerning the analysis of the Manot core engraved incisions, included in the manuscript XXX.
+This R markdown document reads, summarizes and plots data concerning the analysis of the Manot core engraved incisions, included in the manuscript Marreiros et al. 2022.
 
 The document contains:
 
@@ -28,7 +28,7 @@ Please note that most of the tables and figures in this file do not match the nu
 
 For any questions, comments and inputs, please contact:
 
-João Marreiros, marreiros@rgzm.de
+João Marreiros, joao.marreiros@rgzm.de
 
 
 # Load data into R project
