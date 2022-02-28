@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 # Please put your title here to include it in the file below.
-Title <- "An intentionally engraved Levallois core from Manot Cave, Israel, and its contribution to understanding human behavioural complexity"
+Title <- "Middle Palaeolithic engraved stone artifacts from the Levant, and their contribution to understanding human behavioural complexity"
 ```
 
 # manotIncisions

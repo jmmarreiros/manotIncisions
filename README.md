@@ -7,16 +7,16 @@
 
 This repository contains the data and code for our paper:
 
-> Marreiros, J., Goder-Goldberger, M., Paixao, E., (2022). *An
-> intentionally engraved Levallois core from Manot Cave, Israel, and its
+> Marreiros, J., Goder-Goldberger, M., Paixao, E., (2022). *Middle
+> Palaeolithic engraved stone artifacts from the Levant, and their
 > contribution to understanding human behavioural complexity*. Name of
 > journal/book <https://doi.org/xxx/xxx>
 
 Our pre-print is online here:
 
-> Authors, (YYYY). *An intentionally engraved Levallois core from Manot
-> Cave, Israel, and its contribution to understanding human behavioural
-> complexity*. Name of journal/book, Accessed 19 Jan 2022. Online at
+> Authors, (YYYY). *Middle Palaeolithic engraved stone artifacts from
+> the Levant, and their contribution to understanding human behavioural
+> complexity*. Name of journal/book, Accessed 28 Feb 2022. Online at
 > <https://doi.org/xxx/xxx>
 
 ### How to cite
@@ -24,9 +24,9 @@ Our pre-print is online here:
 Please cite this compendium as:
 
 > Marreiros, J., Goder-Goldberger, M., Paixao, E., (2022). *Compendium
-> of R code and data for An intentionally engraved Levallois core from
-> Manot Cave, Israel, and its contribution to understanding human
-> behavioural complexity*. Accessed 19 Jan 2022. Online at
+> of R code and data for Middle Palaeolithic engraved stone artifacts
+> from the Levant, and their contribution to understanding human
+> behavioural complexity*. Accessed 28 Feb 2022. Online at
 > <https://doi.org/xxx/xxx>
 
 ## Contents
