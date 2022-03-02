@@ -3,8 +3,8 @@ title: "S2 - Read and data plotting from the Manuscript Marreiros et al. 2022"
 author: "Joao Marreiros, Mae Goder-Goldberger, Eduardo Paixao"
 date: "7/21/2021"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
