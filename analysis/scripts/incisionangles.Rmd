@@ -1,222 +1,617 @@
 ---
-title: "S2 - Read and data plotting from the Manuscript Marreiros et al. 2022"
-author: "Joao Marreiros, Mae Goder-Goldberger, Eduardo Paixao"
-date: "7/21/2021"
+title: "Reads and plots data from the Manuscript Goder-Goldberger 2024"
+author: "Mae Goder-Goldberger, Joao Marreiros, Eduardo Paixao, Erella Hovers"
+date: "`r Sys.time()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_knit$set(comment = NA, message = FALSE, indent = "", error = TRUE)
-
-```
 
 __Brief description of the script__
 
-This R markdown document reads, summarizes and plots data concerning the analysis of the Manot core engraved incisions, included in the manuscript Marreiros et al. 2022.
+# Content
+This script reads and plots the data from the 3D and 2D morphometric analysis of the artefacts' engraved incisions. For details on the methods and data acquisition, please visit the Materials and Methods section of the paper. 
 
-The document contains:
-
-1. Tables
-2. Figures (data analysis)
-
-This R project and respective scripts follow the procedures described by Marwick et al. 2017. 
-
-To compile this markdown document do not delete or move files from their original folders.
-Please note that most of the tables and figures in this file do not match the numbering in the original manuscript.
+The knit directory for this script is the project directory.This R project and respective scripts follow the procedures described by Marwick et al. 2017. 
 
 For any questions, comments and inputs, please contact:
 
-João Marreiros, joao.marreiros@rgzm.de
+João Marreiros, joao.marreiros@leiza.de
 
-
-# Load data into R project
-
-*Imported files are in: '`r paste0("../analysis/raw_data")`'*
-
-*Figures are saved in: '`r paste0("../analysis/plots")`'*
-
-*Tables are saved in: '`r paste0("../analysis/derived_data")`'*
-
-# Load libraries
-
+# Load packages
 ```{r}
 
-library(tidyverse)
-library(knitr)
-library(kableExtra)
-library(GGally)
-library(doBy)
-library(ggfortify)
+library(R.utils)
+library(ggplot2)
 library(tools)
-library(rstatix)
+library(tidyverse)
+library(doBy)
+library(ggrepel)
+library(flextable)
+library(readr)
 library(ggpubr)
+library(crosstable)
+library(car)
 
 ```
 
 
-# Import dataset
-
+# Import and preview data
 ```{r}
 
-db <- read_csv("../raw_data/incisionsangle.csv", na = c("", "NA"), quoted_na = TRUE)
-data_file <- list.files("../raw_data/", pattern = "\\.csv$", full.names = TRUE)
-
-```
-
-Show dataset:
-
-```{r}
+db <- read.csv("../raw_data/data.csv", stringsAsFactors=FALSE, sep=";", dec=".")
 
 str(db)
+head(db)
 
 ```
 
 # Import and summarize data
 
-```{r fig.height = 6.5, fig.width = 8.5, res = 300}
+```{r}
 
-# compute descriptive statistics
+# summarise data frome ach artefact, organised by AOI
 
-nminmaxmeanmedsd <- function(x){
-	y <- x[!is.na(x)]
-	n_test <- length(y)
-	min_test <- min(y)
-	max_test <- max(y)
-	mean_test <- mean(y)
- 	med_test <- median(y)
- 	sd_test <- sd(y)
- 	out <- c(n_test, min_test, max_test, mean_test, med_test, sd_test)
- 	names(out) <- c("n", "min", "max", "mean", "median", "sd")
- 	return(out)
-}
+# sample data per artefact
 
-num.var <- 5:length(db)
+manotdb <- filter(db, site == "Manot")
+amud1db <- filter(db, site == "Amud1")
+amud2db <- filter(db, site == "Amud2")
+qzdb <- filter(db, site =="Qafzeh")
+qnrtdb <- filter(db, site =="Quneitra")
 
-anglestats <- summaryBy(.~aoi + site + incision, data=db[c("site", "incision", names(db)[num.var])], FUN=nminmaxmeanmedsd)
+# Manot
+# Horizontal distance
+manotdistance <- manotdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(horizontaldistance, na.rm = TRUE),
+      min = min (horizontaldistance, na.rm = TRUE),
+      mean = mean(horizontaldistance, na.rm = TRUE),
+      sd = sd(horizontaldistance, na.rm = TRUE),
+      median = median(horizontaldistance, na.rm = TRUE),
+  ) 
 
-anglestats
+# Depth
+manotdepth <- manotdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(maximumdepth, na.rm = TRUE),
+      min = min (maximumdepth, na.rm = TRUE),
+      mean = mean(maximumdepth, na.rm = TRUE),
+      sd = sd(maximumdepth, na.rm = TRUE),
+      median = median(maximumdepth, na.rm = TRUE),
+  ) 
 
-write_csv(anglestats, "../summary_stats/anglestats.csv")
+# Area
+manotarea <- manotdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(holearea, na.rm = TRUE),
+      min = min (holearea, na.rm = TRUE),
+      mean = mean(holearea, na.rm = TRUE),
+      sd = sd(holearea, na.rm = TRUE),
+      median = median(holearea, na.rm = TRUE),
+  ) 
+
+# Angle
+manotangle <- manotdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(angle, na.rm = TRUE),
+      min = min (angle, na.rm = TRUE),
+      mean = mean(angle, na.rm = TRUE),
+      sd = sd(angle, na.rm = TRUE),
+      median = median(angle, na.rm = TRUE),
+  ) 
+
+# see data summary
+manotdistance
+manotdepth
+manotarea
+manotangle
+
+# save the results 
+write_csv(manotdepth, "../summary_stats/manotdepth.csv")
+write_csv(manotarea, "../summary_stats/manotarea.csv")
+write_csv(manotangle, "../summary_stats/manotangle.csv")
+write_csv(manotdistance, "../summary_stats/manotdistance.csv")
+
+# Amud1
+# Horizontal distance
+amud1distance <- amud1db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(horizontaldistance, na.rm = TRUE),
+      min = min (horizontaldistance, na.rm = TRUE),
+      mean = mean(horizontaldistance, na.rm = TRUE),
+      sd = sd(horizontaldistance, na.rm = TRUE),
+      median = median(horizontaldistance, na.rm = TRUE),
+  ) 
+
+# Depth
+amud1depth <- amud1db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(maximumdepth, na.rm = TRUE),
+      min = min (maximumdepth, na.rm = TRUE),
+      mean = mean(maximumdepth, na.rm = TRUE),
+      sd = sd(maximumdepth, na.rm = TRUE),
+      median = median(maximumdepth, na.rm = TRUE),
+  ) 
+
+# Area
+amud1area <- amud1db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(holearea, na.rm = TRUE),
+      min = min (holearea, na.rm = TRUE),
+      mean = mean(holearea, na.rm = TRUE),
+      sd = sd(holearea, na.rm = TRUE),
+      median = median(holearea, na.rm = TRUE),
+  ) 
+
+# Angle
+amud1angle <- amud1db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(angle, na.rm = TRUE),
+      min = min (angle, na.rm = TRUE),
+      mean = mean(angle, na.rm = TRUE),
+      sd = sd(angle, na.rm = TRUE),
+      median = median(angle, na.rm = TRUE),
+  ) 
+
+# see data summary
+amud1distance
+amud1depth
+amud1area
+amud1angle
+
+# save the results 
+write_csv(amud1depth, "../summary_stats/amud1depth.csv")
+write_csv(amud1area, "../summary_stats/amud1area.csv")
+write_csv(amud1angle, "../summary_stats/amud1angle.csv")
+write_csv(amud1distance, "../summary_stats/amud1distance.csv")
+
+# Amud2
+# Horizontal distance
+amud2distance <- amud2db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(horizontaldistance, na.rm = TRUE),
+      min = min (horizontaldistance, na.rm = TRUE),
+      mean = mean(horizontaldistance, na.rm = TRUE),
+      sd = sd(horizontaldistance, na.rm = TRUE),
+      median = median(horizontaldistance, na.rm = TRUE),
+  ) 
+
+# Depth
+amud2depth <- amud2db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(maximumdepth, na.rm = TRUE),
+      min = min (maximumdepth, na.rm = TRUE),
+      mean = mean(maximumdepth, na.rm = TRUE),
+      sd = sd(maximumdepth, na.rm = TRUE),
+      median = median(maximumdepth, na.rm = TRUE),
+  ) 
+
+# Area
+amud2area <- amud2db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(holearea, na.rm = TRUE),
+      min = min (holearea, na.rm = TRUE),
+      mean = mean(holearea, na.rm = TRUE),
+      sd = sd(holearea, na.rm = TRUE),
+      median = median(holearea, na.rm = TRUE),
+  ) 
+
+# Angle
+amud2angle <- amud2db %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(angle, na.rm = TRUE),
+      min = min (angle, na.rm = TRUE),
+      mean = mean(angle, na.rm = TRUE),
+      sd = sd(angle, na.rm = TRUE),
+      median = median(angle, na.rm = TRUE),
+  ) 
+
+# see data summary
+amud2distance
+amud2depth
+amud2area
+amud2angle
+
+# save the results 
+write_csv(amud2depth, "../summary_stats/amud2depth.csv")
+write_csv(amud2area, "../summary_stats/amud2area.csv")
+write_csv(amud2angle, "../summary_stats/amud2angle.csv")
+write_csv(amud2distance, "../summary_stats/amud2distance.csv")
+
+# Quneitra
+# Horizontal distance
+qnrtdistance <- qnrtdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(horizontaldistance, na.rm = TRUE),
+      min = min (horizontaldistance, na.rm = TRUE),
+      mean = mean(horizontaldistance, na.rm = TRUE),
+      sd = sd(horizontaldistance, na.rm = TRUE),
+      median = median(horizontaldistance, na.rm = TRUE),
+  ) 
+
+# Depth
+qnrtdepth <- qnrtdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(maximumdepth, na.rm = TRUE),
+      min = min (maximumdepth, na.rm = TRUE),
+      mean = mean(maximumdepth, na.rm = TRUE),
+      sd = sd(maximumdepth, na.rm = TRUE),
+      median = median(maximumdepth, na.rm = TRUE),
+  ) 
+
+# Area
+qnrtarea <- qnrtdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(holearea, na.rm = TRUE),
+      min = min (holearea, na.rm = TRUE),
+      mean = mean(holearea, na.rm = TRUE),
+      sd = sd(holearea, na.rm = TRUE),
+      median = median(holearea, na.rm = TRUE),
+  ) 
+
+# Angle
+qnrtangle <- qnrtdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(angle, na.rm = TRUE),
+      min = min (angle, na.rm = TRUE),
+      mean = mean(angle, na.rm = TRUE),
+      sd = sd(angle, na.rm = TRUE),
+      median = median(angle, na.rm = TRUE),
+  ) 
+
+# see data summary
+qnrtdistance
+qnrtdepth
+qnrtarea
+qnrtangle
+
+# save the results 
+write_csv(qnrtdepth, "../summary_stats/qnrtdepth.csv")
+write_csv(qnrtarea, "../summary_stats/qnrtarea.csv")
+write_csv(qnrtangle, "../summary_stats/qnrtangle.csv")
+write_csv(qnrtdistance, "../summary_stats/qnrtdistance.csv")
+
+# Qafzeh
+# Horizontal distance
+qzdistance <- qzdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(horizontaldistance, na.rm = TRUE),
+      min = min (horizontaldistance, na.rm = TRUE),
+      mean = mean(horizontaldistance, na.rm = TRUE),
+      sd = sd(horizontaldistance, na.rm = TRUE),
+      median = median(horizontaldistance, na.rm = TRUE),
+  ) 
+
+# Depth
+qzdepth <- qzdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(maximumdepth, na.rm = TRUE),
+      min = min (maximumdepth, na.rm = TRUE),
+      mean = mean(maximumdepth, na.rm = TRUE),
+      sd = sd(maximumdepth, na.rm = TRUE),
+      median = median(maximumdepth, na.rm = TRUE),
+  ) 
+
+# Area
+qzarea <- qzdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(holearea, na.rm = TRUE),
+      min = min (holearea, na.rm = TRUE),
+      mean = mean(holearea, na.rm = TRUE),
+      sd = sd(holearea, na.rm = TRUE),
+      median = median(holearea, na.rm = TRUE),
+  ) 
+
+# Angle
+qzangle <- qzdb %>% group_by(aoi) %>%
+      summarise(
+      count = n(),
+      max = max(angle, na.rm = TRUE),
+      min = min (angle, na.rm = TRUE),
+      mean = mean(angle, na.rm = TRUE),
+      sd = sd(angle, na.rm = TRUE),
+      median = median(angle, na.rm = TRUE),
+  ) 
+
+# see data summary
+qzdistance
+qzdepth
+qzarea
+qzangle
+
+# save the results 
+write_csv(qzdepth, "../summary_stats/qzdepth.csv")
+write_csv(qzarea, "../summary_stats/qzarea.csv")
+write_csv(qzangle, "../summary_stats/qzangle.csv")
+write_csv(qzdistance, "../summary_stats/qzdistance.csv")
+
+# summarise data by artefact ("site") for each measured variabled
+
+# Horizontal distance
+dbstatsdistance <- db %>% group_by(site) %>%
+      summarise(
+      count = n(),
+      max = max(horizontaldistance, na.rm = TRUE),
+      min = min (horizontaldistance, na.rm = TRUE),
+      mean = mean(horizontaldistance, na.rm = TRUE),
+      sd = sd(horizontaldistance, na.rm = TRUE),
+      median = median(horizontaldistance, na.rm = TRUE),
+  ) 
+
+# Depth
+dbstatsdepth <- db %>% group_by(site) %>%
+      summarise(
+      count = n(),
+      max = max(maximumdepth, na.rm = TRUE),
+      min = min (maximumdepth, na.rm = TRUE),
+      mean = mean(maximumdepth, na.rm = TRUE),
+      sd = sd(maximumdepth, na.rm = TRUE),
+      median = median(maximumdepth, na.rm = TRUE),
+  ) 
+
+# Area
+dbstatsarea <- db %>% group_by(site) %>%
+      summarise(
+      count = n(),
+      max = max(holearea, na.rm = TRUE),
+      min = min (holearea, na.rm = TRUE),
+      mean = mean(holearea, na.rm = TRUE),
+      sd = sd(holearea, na.rm = TRUE),
+      median = median(holearea, na.rm = TRUE),
+  ) 
+
+# Angle
+dbstatsangle <- db %>% group_by(site) %>%
+      summarise(
+      count = n(),
+      max = max(angle, na.rm = TRUE),
+      min = min (angle, na.rm = TRUE),
+      mean = mean(angle, na.rm = TRUE),
+      sd = sd(angle, na.rm = TRUE),
+      median = median(angle, na.rm = TRUE),
+  ) 
+
+# see data summary
+dbstatsdistance
+dbstatsdepth
+dbstatsarea
+dbstatsangle
+
+# save the results 
+write_csv(dbstatsdepth, "../summary_stats/datastatsdepth.csv")
+write_csv(dbstatsarea, "../summary_stats/datastatsarea.csv")
+write_csv(dbstatsangle, "../summary_stats/datastatsangle.csv")
+write_csv(dbstatsdistance, "../summary_stats/datastatsdistance.csv")
+
+# General inventory (counts) table organised by site and aoi
+inventory <- crosstable(db, c(site), by=c(aoi), total = "both")
+
+print(inventory)
+write_csv(inventory, "../summary_stats/inventory.csv")
 
 ```
 
 # Plot data
-
-```{r fig.height = 6.5, fig.width = 8.5, res = 300}
+```{r}
 
 # converting to categorical
 db$aoi = as.factor(db$aoi) 
-# db$incision = as.factor(db$incision)
+db$incision = as.factor(db$incision) 
+db$profile = as.factor(db$profile) 
 
-sitesangle <- ggplot(data = db, aes(x = site, y = angle)) +  
+# Boxplot for visualise distance, depth, area and angle data organised by AOI and Site
+
+# Angle
+angle <- ggplot(data = db, aes(x = site, y = angle, fill = aoi, col = site)) +  
+            geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Angle (º)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1))
+
+print(angle)
+
+ggsave("../plots/angle.png")
+
+
+# Depth
+depth <- ggplot(data = db, aes(x = site, y = maximumdepth, fill = aoi, col = site)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
-           labs( x = "", y = "Angle in º") +
-           geom_jitter(aes(colour = site), alpha=0.9, position=position_jitter(w=0.1,h=0.1))
+           labs(x = "", y = "Maximum depth (μm)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
 
-print(sitesangle)
+print(depth)
 
-ggsave("../plots/sitesangle.png")
+ggsave("../plots/depth.png")
+
+# Distance
+distance <- ggplot(data = db, aes(x = site, y = horizontaldistance, fill = aoi, col = site)) +  
+           geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Horizontal distance (μm)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1))
+
+print(distance)
+
+ggsave("../plots/distance.png")
+
+# Area
+area <- ggplot(data = db, aes(x = site, y = holearea, fill = aoi, col = site)) +  
+           geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Area of the cut (μm2)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
+
+print(area)
+
+ggsave("../plots/area.png")
+
+a <- ggarrange(angle, depth, distance, area, ncol = 2, nrow = 2, common.legend = T)
+
+print(a)
+ggsave("../plots/combinedAOI.png")
+
+# Boxplot for visualise distance, depth, area and angle data, together and organised by Site
+
+# Angle
+anglesite <- ggplot(data = db, aes(x = site, y = angle)) +  
+            geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Angle (º)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.8, position=position_jitter(w=0.1,h=0.1))
+
+print(anglesite)
+
+ggsave("../plots/anglesite.png")
+
+
+# Depth
+depthsite <- ggplot(data = db, aes(x = site, y = maximumdepth,)) +  
+           geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Maximum depth (μm)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.8, position=position_jitter(w=0.1,h=0.1)) 
+
+print(depthsite)
+
+ggsave("../plots/depthsite.png")
+
+# Distance
+distancesite <- ggplot(data = db, aes(x = site, y = horizontaldistance)) +  
+           geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Horizontal distance (μm)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.8, position=position_jitter(w=0.1,h=0.1))
+
+print(distancesite)
+
+ggsave("../plots/distancesite.png")
+
+# Area
+areasite <- ggplot(data = db, aes(x = site, y = holearea)) +  
+           geom_boxplot() +
+           theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
+           labs(x = "", y = "Area of the cut (μm2)") +
+           scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
+           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
+
+print(areasite)
+
+ggsave("../plots/areasite.png")
+
+a <- ggarrange(anglesite, depthsite, distancesite, areasite, ncol = 2, nrow = 2, common.legend = T)
+
+print(a)
+ggsave("../plots/combinedsite.png")
 
 
 ```
 
-# Run ANOVA for comparison
 
+# Anova analysis
 ```{r}
+# one-way anova test the effect of raw material on damage
 
+# The null hypothesis (H0) of the ANOVA is no difference (between artefacts) in means (for each geometric feature of the incisions), and the alternative hypothesis (Ha) is that the means are different from one another (between sites).
 
+# check if there are differences among group means
+## horizontal distance (width)
+onewaymodelwidth <- aov(horizontaldistance ~ site, data = db)
+summary(onewaymodelwidth)
 
-# brief visualization of the data from the 3 artifacts
+## Depth
+onewaymodeldepth <- aov(maximumdepth ~ site, data = db)
+summary(onewaymodeldepth)
 
-ggplot(data = db, aes(x= site, y= angle)) +
-  geom_boxplot()
+## Area of the hole
+onewaymodelarea <- aov(holearea ~ site, data = db)
+summary(onewaymodelarea)
 
-# check for outliers
+## Angle
+onewaymodelangle <- aov(angle ~ site, data = db)
+summary(onewaymodelangle)
 
-db %>%
-  group_by(site) %>%
-  identify_outliers(angle)
-
-# there are no extreme outliers
+# The p-value of the raw material variable is low (p < 0.001), so it appears that the site (at least one) has a real impact on the features.
 
 # check normality
+hist(onewaymodelwidth$residuals)
+hist(onewaymodeldepth$residuals)
+hist(onewaymodelarea$residuals)
+hist(onewaymodelangle$residuals)
 
-model <- lm(angle ~ site, data = db)
+# library(car)
+qqPlot(onewaymodelwidth$residuals)
+qqPlot(onewaymodeldepth$residuals)
+qqPlot(onewaymodelarea$residuals)
+qqPlot(onewaymodelangle$residuals)
 
-# QQ plot of residuals
+# check if model fits the assumption, the homogeneity of variances
+par(mfrow=c(2,2))
+plot(onewaymodelwidth)
+par(mfrow=c(1,1))
 
-ggqqplot(residuals(model))
-shapiro_test(residuals(model))
+par(mfrow=c(2,2))
+plot(onewaymodeldepth)
+par(mfrow=c(1,1))
 
-db %>%
-  group_by(site) %>%
-  shapiro_test(angle)
+par(mfrow=c(2,2))
+plot(onewaymodelarea)
+par(mfrow=c(1,1))
 
-ggqqplot(db, "angle", facet.by = "site")
+par(mfrow=c(2,2))
+plot(onewaymodelangle)
+par(mfrow=c(1,1))
 
-ang.aov <- db %>% anova_test(angle ~ site)
-ang.aov
+# The model fits the assumption of homoscedasticity
 
-# post-hoc test
+# ANOVA tells us if there are differences among group means (sites and features), but not where those differences are. To find out which groups are statistically different from one another, you perform a Tukey’s Honestly Significant Difference Tukey’s HSD post-hoc test for pairwise comparisons.
 
-ang.pwc <- db %>% tukey_hsd(angle ~ site)
-ang.pwc
+# check which groups are statistically different from one another
+TukeyHSD(onewaymodelwidth, conf.level=.95) 
+plot(TukeyHSD(onewaymodelwidth, conf.level=.95), las = 1, cex.axis=0.5)
 
-# plot the results
+TukeyHSD(onewaymodeldepth, conf.level=.95) 
+plot(TukeyHSD(onewaymodeldepth, conf.level=.95), las = 1, cex.axis=0.5)
 
-ang.pwc.plot <- ang.pwc %>% add_xy_position(x = "site")
+TukeyHSD(onewaymodelarea, conf.level=.95) 
+plot(TukeyHSD(onewaymodelarea, conf.level=.95), las = 1, cex.axis=0.5)
 
+TukeyHSD(onewaymodelangle, conf.level=.95) 
+plot(TukeyHSD(onewaymodelangle, conf.level=.95), las = 1, cex.axis=0.5)
 
-ggboxplot(db, x = "site", y = "angle") +
-  stat_pvalue_manual(ang.pwc.plot, hide.ns = TRUE) +
-  labs(
-    subtitle = get_test_label(ang.aov, detailed = TRUE),
-    caption = get_pwc_label(ang.pwc.plot)
-    )
-
-```
-
-# Kruskal-Wallis test
-```{r}
-
-ang.kruskal <- db %>% kruskal_test(angle ~ site)
-ang.kruskal
-
-db %>% kruskal_effsize(angle ~ site)
-
-# comparison between pairs
-
-ang.will <- db %>% 
-  wilcox_test(angle ~ site, p.adjust.method = "bonferroni")
-ang.will
-
-ang.will <- ang.will %>% add_xy_position(x = "site")
-
-ggboxplot(db, x = "site", y = "angle") +
-  stat_pvalue_manual(ang.will, hide.ns = TRUE) +
-  labs(
-    subtitle = get_test_label(ang.kruskal, detailed = TRUE),
-    caption = get_pwc_label(ang.will)
-    )
-
-ggsave("../plots/anova.png")
+# Some observations from the post-hoc test results:
+# All raw materials are significantly different from each other. All p-value (here represented as p adj) are smaller than 0.05.
 
 ```
-
 
 ---
 
 End of Script
-
-
-
-
-
-
-
-
-
 
