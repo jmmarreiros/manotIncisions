@@ -529,7 +529,7 @@ ggsave("../plots/areasite.png")
 a <- ggarrange(anglesite, depthsite, distancesite, areasite, ncol = 2, nrow = 2, common.legend = T)
 
 print(a)
-ggsave("../plots/combinedsite.png")
+ggsave("../plots/combined.png")
 
 
 ```
