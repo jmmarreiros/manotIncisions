@@ -1,5 +1,5 @@
 ---
-title: "Reads and plots data from the Manuscript Goder-Goldberger 2024"
+title: "Reads and plots data from the Manuscript Goder-Goldberger et al AASc, In press"
 author: "Mae Goder-Goldberger, Joao Marreiros, Eduardo Paixao, Erella Hovers"
 date: "`r Sys.time()`"
 output:
@@ -36,7 +36,7 @@ library(car)
 ```
 
 
-# Import and preview data
+# Import and preview raw data
 ```{r}
 
 db <- read.csv("../raw_data/data.csv", stringsAsFactors=FALSE, sep=";", dec=".")
