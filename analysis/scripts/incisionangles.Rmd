@@ -54,11 +54,11 @@ head(db)
 
 # sample data per artefact
 
-manotdb <- filter(db, site == "Manot")
-amud1db <- filter(db, site == "Amud1")
-amud2db <- filter(db, site == "Amud2")
-qzdb <- filter(db, site =="Qafzeh")
-qnrtdb <- filter(db, site =="Quneitra")
+manotdb <- filter(db, artefact == "Manot")
+amud1db <- filter(db, artefact == "Amud1")
+amud2db <- filter(db, artefact == "Amud2")
+qzdb <- filter(db, artefact =="Qafzeh")
+qnrtdb <- filter(db, artefact =="Quneitra")
 
 # Manot
 # Horizontal distance
@@ -348,7 +348,7 @@ write_csv(qzdistance, "../summary_stats/qzdistance.csv")
 # summarise data by artefact ("site") for each measured variabled
 
 # Horizontal distance
-dbstatsdistance <- db %>% group_by(site) %>%
+dbstatsdistance <- db %>% group_by(artefact) %>%
       summarise(
       count = n(),
       max = max(horizontaldistance, na.rm = TRUE),
@@ -359,7 +359,7 @@ dbstatsdistance <- db %>% group_by(site) %>%
   ) 
 
 # Depth
-dbstatsdepth <- db %>% group_by(site) %>%
+dbstatsdepth <- db %>% group_by(artefact) %>%
       summarise(
       count = n(),
       max = max(maximumdepth, na.rm = TRUE),
@@ -370,7 +370,7 @@ dbstatsdepth <- db %>% group_by(site) %>%
   ) 
 
 # Area
-dbstatsarea <- db %>% group_by(site) %>%
+dbstatsarea <- db %>% group_by(artefact) %>%
       summarise(
       count = n(),
       max = max(holearea, na.rm = TRUE),
@@ -381,7 +381,7 @@ dbstatsarea <- db %>% group_by(site) %>%
   ) 
 
 # Angle
-dbstatsangle <- db %>% group_by(site) %>%
+dbstatsangle <- db %>% group_by(artefact) %>%
       summarise(
       count = n(),
       max = max(angle, na.rm = TRUE),
@@ -404,7 +404,7 @@ write_csv(dbstatsangle, "../summary_stats/datastatsangle.csv")
 write_csv(dbstatsdistance, "../summary_stats/datastatsdistance.csv")
 
 # General inventory (counts) table organised by site and aoi
-inventory <- crosstable(db, c(site), by=c(aoi), total = "both")
+inventory <- crosstable(db, c(artefact), by=c(aoi), total = "both")
 
 print(inventory)
 write_csv(inventory, "../summary_stats/inventory.csv")
@@ -422,49 +422,49 @@ db$profile = as.factor(db$profile)
 # Boxplot for visualise distance, depth, area and angle data organised by AOI and Site
 
 # Angle
-angle <- ggplot(data = db, aes(x = site, y = angle, fill = aoi, col = site)) +  
+angle <- ggplot(data = db, aes(x = artefact, y = angle, fill = aoi, col = artefact)) +  
             geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Angle (º)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1))
+           geom_jitter(aes(colour = artefact), alpha=0.2, position=position_jitter(w=0.1,h=0.1))
 
 print(angle)
 
-ggsave("../plots/angle.png")
+ggsave("../plots/angle.png", dpi = 300)
 
 
 # Depth
-depth <- ggplot(data = db, aes(x = site, y = maximumdepth, fill = aoi, col = site)) +  
+depth <- ggplot(data = db, aes(x = artefact, y = maximumdepth, fill = aoi, col = artefact)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Maximum depth (μm)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
+           geom_jitter(aes(colour = artefact), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
 
 print(depth)
 
-ggsave("../plots/depth.png")
+ggsave("../plots/depth.png", dpi = 300)
 
 # Distance
-distance <- ggplot(data = db, aes(x = site, y = horizontaldistance, fill = aoi, col = site)) +  
+distance <- ggplot(data = db, aes(x = artefact, y = horizontaldistance, fill = aoi, col = artefact)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Horizontal distance (μm)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1))
+           geom_jitter(aes(colour = artefact), alpha=0.2, position=position_jitter(w=0.1,h=0.1))
 
 print(distance)
 
 ggsave("../plots/distance.png")
 
 # Area
-area <- ggplot(data = db, aes(x = site, y = holearea, fill = aoi, col = site)) +  
+area <- ggplot(data = db, aes(x = artefact, y = holearea, fill = aoi, col = artefact)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Area of the cut (μm2)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
+           geom_jitter(aes(colour = artefact), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
 
 print(area)
 
@@ -473,63 +473,63 @@ ggsave("../plots/area.png")
 a <- ggarrange(angle, depth, distance, area, ncol = 2, nrow = 2, common.legend = T)
 
 print(a)
-ggsave("../plots/combinedAOI.png")
+ggsave("../plots/combinedAOI.png", dpi = 300)
 
 # Boxplot for visualise distance, depth, area and angle data, together and organised by Site
 
 # Angle
-anglesite <- ggplot(data = db, aes(x = site, y = angle)) +  
+anglesite <- ggplot(data = db, aes(x = artefact, y = angle)) +  
             geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Angle (º)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.8, position=position_jitter(w=0.1,h=0.1))
+           geom_jitter(aes(colour = artefact), alpha=0.8, position=position_jitter(w=0.1,h=0.1))
 
 print(anglesite)
 
-ggsave("../plots/anglesite.png")
+ggsave("../plots/anglesite.png", dpi = 300)
 
 
 # Depth
-depthsite <- ggplot(data = db, aes(x = site, y = maximumdepth,)) +  
+depthsite <- ggplot(data = db, aes(x = artefact, y = maximumdepth,)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Maximum depth (μm)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.8, position=position_jitter(w=0.1,h=0.1)) 
+           geom_jitter(aes(colour = artefact), alpha=0.8, position=position_jitter(w=0.1,h=0.1)) 
 
 print(depthsite)
 
-ggsave("../plots/depthsite.png")
+ggsave("../plots/depthsite.png", dpi = 300)
 
 # Distance
-distancesite <- ggplot(data = db, aes(x = site, y = horizontaldistance)) +  
+distancesite <- ggplot(data = db, aes(x = artefact, y = horizontaldistance)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Horizontal distance (μm)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.8, position=position_jitter(w=0.1,h=0.1))
+           geom_jitter(aes(colour = artefact), alpha=0.8, position=position_jitter(w=0.1,h=0.1))
 
 print(distancesite)
 
-ggsave("../plots/distancesite.png")
+ggsave("../plots/distancesite.png", dpi =300)
 
 # Area
-areasite <- ggplot(data = db, aes(x = site, y = holearea)) +  
+areasite <- ggplot(data = db, aes(x = artefact, y = holearea)) +  
            geom_boxplot() +
            theme_bw()+scale_fill_grey(start = 0.8, end = 1) +
            labs(x = "", y = "Area of the cut (μm2)") +
            scale_x_discrete(labels = c("Amud 1", "Amud 2", "Manot", "Quneitra", "Qafzeh")) +
-           geom_jitter(aes(colour = site), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
+           geom_jitter(aes(colour = artefact), alpha=0.2, position=position_jitter(w=0.1,h=0.1)) 
 
 print(areasite)
 
-ggsave("../plots/areasite.png")
+ggsave("../plots/areasite.png", dpi = 300)
 
 a <- ggarrange(anglesite, depthsite, distancesite, areasite, ncol = 2, nrow = 2, common.legend = T)
 
 print(a)
-ggsave("../plots/combined.png")
+ggsave("../plots/combined.png", dpi = 300)
 
 
 ```
@@ -543,19 +543,19 @@ ggsave("../plots/combined.png")
 
 # check if there are differences among group means
 ## horizontal distance (width)
-onewaymodelwidth <- aov(horizontaldistance ~ site, data = db)
+onewaymodelwidth <- aov(horizontaldistance ~ artefact, data = db)
 summary(onewaymodelwidth)
 
 ## Depth
-onewaymodeldepth <- aov(maximumdepth ~ site, data = db)
+onewaymodeldepth <- aov(maximumdepth ~ artefact, data = db)
 summary(onewaymodeldepth)
 
 ## Area of the hole
-onewaymodelarea <- aov(holearea ~ site, data = db)
+onewaymodelarea <- aov(holearea ~ artefact, data = db)
 summary(onewaymodelarea)
 
 ## Angle
-onewaymodelangle <- aov(angle ~ site, data = db)
+onewaymodelangle <- aov(angle ~ artefact, data = db)
 summary(onewaymodelangle)
 
 # The p-value of the raw material variable is low (p < 0.001), so it appears that the site (at least one) has a real impact on the features.
